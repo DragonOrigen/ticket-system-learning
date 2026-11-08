@@ -1,8 +1,8 @@
 # Sistema de tickets — versão LOCAL / SQLite
 
-Esta pasta é independente. Usa SQLite, sem servidor de banco e sem configuração de PostgreSQL.
+Usa SQLite, sem servidor de banco e sem configuração de PostgreSQL.
 Suporte, tarefas manuais, dashboard, ajuda, usuários e importação XLSX estão incluídos.
-Não há repetição semanal automática. A versão para Render está em outro ZIP.
+Não há repetição semanal automática.
 
 ## Iniciar no Windows (CMD)
 
