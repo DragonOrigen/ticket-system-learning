@@ -1,0 +1,11 @@
+# Execute os comandos na pasta deste arquivo.
+# As dependências da aplicação ficam somente em requirements.txt.
+name: tickets-django
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - -r requirements.txt

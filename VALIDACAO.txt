@@ -1,0 +1,1 @@
+SQLite: 32 testes aprovados. Banco e segredos excluídos do pacote.

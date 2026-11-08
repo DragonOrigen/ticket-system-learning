@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Dashboard</h2><p>{% if technician %}Visão técnica: todos os chamados.{% else %}Resumo dos seus chamados.{% endif %}</p>
+<section class="cards"><div class="card"><b>{{ total }}</b>Total</div><div class="card"><b>{{ opened }}</b>Em aberto</div><div class="card"><b>{{ waiting }}</b>Aguardando resposta</div><div class="card"><b>{{ closed }}</b>Concluídos</div></section>
+<div class="actions"><a href="{% url 'support_list' %}">Consultar suporte</a><a href="{% url 'task_list' %}">Consultar tarefas</a><a href="{% url 'ticket_create' %}">Abrir chamado</a></div>
+{% if technician %}
+<section class="panel"><h3>O que atender primeiro</h3><p>Até 10 chamados abertos: urgência primeiro; na mesma urgência, os sem responsável; depois os mais antigos.</p>
+{% for ticket in priority %}<p><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.code }}</a> — {{ ticket.description|truncatechars:90 }} — {{ ticket.get_urgency_display }} — {{ ticket.responsible|default:'Sem responsável' }}</p>{% empty %}<p>Nenhum chamado pendente.</p>{% endfor %}</section>
+<section class="panel"><h3>Casos fora do padrão (outliers operacionais)</h3><p>Alertas por regras de acompanhamento, sem análise estatística. Apenas chamados abertos.</p>
+{% for alert in alerts %}<p><a href="{% url 'ticket_detail' alert.ticket.pk %}">{{ alert.ticket.code }}</a> — {{ alert.ticket.description|truncatechars:90 }}<br>{{ alert.reasons|join:' · ' }}</p>{% empty %}<p>Nenhum alerta pelos critérios atuais.</p>{% endfor %}</section>
+{% endif %}
+{% endblock %}

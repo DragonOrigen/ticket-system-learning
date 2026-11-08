@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.local-secret
+staticfiles/
+.env
+# Ambientes alternativos e arquivos temporários
+venv/
+env/
+.conda/
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+.pytest_cache/
+
+*.xlsx
+mapa_importacao.json
+.venv-postgres/

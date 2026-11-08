@@ -1,0 +1,30 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Central de atendimento</title>
+    <script src="{% static 'theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'app.css' %}">
+</head>
+<body><main>
+<header>
+    <h1>Central de atendimento</h1>
+    <nav class="actions" aria-label="Navegação principal">
+        <button id="themeToggle" type="button" class="secondary">Modo escuro</button>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'support_list' %}">Suporte</a>
+            <a href="{% url 'task_list' %}">Tarefas</a>
+            <a href="{% url 'help' %}">Ajuda</a>
+            <a href="{% url 'password_change' %}">Trocar senha</a>
+            {% if user.is_staff %}<a href="{% url 'admin:index' %}">Administração</a>{% endif %}
+            <span>{{ user.username }}</span>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Sair</button></form>
+        {% endif %}
+    </nav>
+</header>
+{% for message in messages %}<p role="status" class="panel">{{ message }}</p>{% endfor %}
+{% block content %}{% endblock %}
+</main></body></html>

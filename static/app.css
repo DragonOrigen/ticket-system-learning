@@ -1,0 +1,320 @@
+/* As mesmas variáveis atendem o painel, os formulários e o histórico. */
+   :root {
+     color-scheme: light;
+     --fundo-pagina: #f1f5f9;
+     --fundo-superficie: #ffffff;
+     --fundo-suave: #f8fafc;
+     --fundo-indicador: #f0f7fa;
+     --fundo-etiqueta: #eaf2f6;
+     --texto: #172536;
+     --texto-secundario: #64748b;
+     --borda: #cbd5e1;
+     --borda-suave: #e2e8f0;
+     --borda-indicador: #dbe7ec;
+     --botao: #176b87;
+     --texto-botao: #ffffff;
+     --botao-secundario: #e2e8f0;
+     --fundo-erro: #fee2e2;
+     --texto-erro: #991b1b;
+     --fundo-sucesso: #dcfce7;
+     --texto-sucesso: #166534;
+     --foco: #0284c7;
+   }
+
+   :root[data-tema="escuro"] {
+     color-scheme: dark;
+     --fundo-pagina: #0f172a;
+     --fundo-superficie: #182338;
+     --fundo-suave: #202e45;
+     --fundo-indicador: #203449;
+     --fundo-etiqueta: #284259;
+     --texto: #e5edf7;
+     --texto-secundario: #b0bfd2;
+     --borda: #52647e;
+     --borda-suave: #394b65;
+     --borda-indicador: #3c566e;
+     --botao: #246f8a;
+     --texto-botao: #ffffff;
+     --botao-secundario: #33465e;
+     --fundo-erro: #481f2b;
+     --texto-erro: #fecaca;
+     --fundo-sucesso: #173c30;
+     --texto-sucesso: #bbf7d0;
+     --foco: #7dd3fc;
+   }
+
+   * {
+     box-sizing: border-box
+   }
+
+   body {
+     margin: 0;
+     background: var(--fundo-pagina);
+     color: var(--texto);
+     font: 15px Arial, sans-serif
+   }
+
+   main {
+     max-width: 1250px;
+     margin: 28px auto;
+     padding: 24px;
+     background: var(--fundo-superficie);
+     border-radius: 16px
+   }
+
+   header,
+   .bar {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     gap: 12px;
+     flex-wrap: wrap
+   }
+
+   h1 {
+     font-size: 26px;
+     margin-bottom: 5px
+   }
+
+   h2 {
+     margin-top: 0
+   }
+
+   .muted {
+     color: var(--texto-secundario)
+   }
+
+   button {
+     padding: 11px 17px;
+     background: var(--botao);
+     color: var(--texto-botao);
+     border: 0;
+     border-radius: 7px;
+     cursor: pointer
+   }
+
+   button.secondary {
+     background: var(--botao-secundario);
+     color: var(--texto)
+   }
+
+   button:disabled {
+     opacity: .5;
+     cursor: wait
+   }
+
+   input,
+   select,
+   textarea {
+     font: inherit;
+     width: 100%;
+     padding: 11px;
+     border: 1px solid var(--borda);
+     border-radius: 7px;
+     background: var(--fundo-superficie);
+     color: var(--texto)
+   }
+
+   textarea {
+     min-height: 100px;
+     resize: vertical
+   }
+
+   label {
+     display: block;
+     margin: 14px 0 6px;
+     font-weight: bold
+   }
+
+   .grid {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 0 18px
+   }
+
+   .cards {
+     display: grid;
+     grid-template-columns: repeat(4, 1fr);
+     gap: 12px;
+     margin: 24px 0
+   }
+
+   .card {
+     background: var(--fundo-indicador);
+     border: 1px solid var(--borda-indicador);
+     padding: 16px;
+     border-radius: 10px
+   }
+
+   .card b {
+     display: block;
+     font-size: 28px;
+     margin-bottom: 5px
+   }
+
+   .filters {
+     display: grid;
+     grid-template-columns: 2fr 1fr 1fr 1fr;
+     gap: 12px;
+     margin: 18px 0
+   }
+
+   table {
+     border-collapse: collapse;
+     width: 100%;
+     font-size: 14px
+   }
+
+   th,
+   td {
+     padding: 13px 9px;
+     text-align: left;
+     border-bottom: 1px solid var(--borda-suave);
+     vertical-align: top
+   }
+
+   th {
+     background: var(--fundo-suave)
+   }
+
+   td {
+     white-space: pre-wrap;
+     overflow-wrap: anywhere
+   }
+
+   .scroll {
+     overflow-x: auto
+   }
+
+   .badge {
+     display: inline-block;
+     background: var(--fundo-etiqueta);
+     padding: 5px 8px;
+     border-radius: 6px
+   }
+
+   .checks {
+     display: grid;
+     grid-template-columns: repeat(3, 1fr);
+     gap: 7px;
+     max-height: 230px;
+     overflow: auto;
+     background: var(--fundo-suave);
+     padding: 12px;
+     margin-top: 8px
+   }
+
+   .checks label {
+     display: flex;
+     gap: 7px;
+     align-items: center;
+     font-size: 13px;
+     font-weight: normal;
+     margin: 0
+   }
+
+   .checks input {
+     width: auto
+   }
+
+   dialog {
+     background: var(--fundo-superficie);
+     color: var(--texto);
+     width: min(850px, 95vw);
+     max-height: 93vh;
+     border: 0;
+     border-radius: 14px;
+     padding: 24px
+   }
+
+   dialog::backdrop {
+     background: #14243599
+   }
+
+   .history {
+     white-space: pre-wrap;
+     overflow-wrap: anywhere;
+     background: var(--fundo-suave);
+     padding: 15px;
+     border-radius: 8px;
+     max-height: 280px;
+     overflow: auto;
+     font: 14px/1.6 Arial
+   }
+
+   #msg {
+     white-space: pre-wrap;
+     padding: 12px;
+     margin: 12px 0;
+     border-radius: 7px
+   }
+
+   #msg:empty {
+     display: none
+   }
+
+   .error {
+     background: var(--fundo-erro);
+     color: var(--texto-erro)
+   }
+
+   .success {
+     background: var(--fundo-sucesso);
+     color: var(--texto-sucesso)
+   }
+
+   .foot {
+     margin-top: 20px;
+     display: flex;
+     gap: 8px;
+     justify-content: flex-end
+   }
+
+   [hidden] {
+     display: none !important
+   }
+
+   @media(max-width:700px) {
+     main {
+       margin: 0;
+       padding: 16px;
+       border-radius: 0
+     }
+
+     .grid,
+     .filters {
+       grid-template-columns: 1fr
+     }
+
+     .cards {
+       grid-template-columns: 1fr 1fr
+     }
+
+     .checks {
+       grid-template-columns: 1fr 1fr
+     }
+   }
+
+   input::placeholder,
+   textarea::placeholder {
+     color: var(--texto-secundario);
+     opacity: 1;
+   }
+
+   button:focus-visible,
+   input:focus-visible,
+   select:focus-visible,
+   textarea:focus-visible,
+   summary:focus-visible {
+     outline: 2px solid var(--foco);
+     outline-offset: 3px;
+   }
+  
+input[type=checkbox] { width: auto; }
+a { color: var(--foco); }
+.actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.panel { margin:22px 0; padding:18px; border:1px solid var(--borda); border-radius:10px; }
+.errorlist { color:var(--texto-erro); }
+.helptext { color:var(--texto-secundario); display:block; margin:6px 0; }
+.message { white-space:pre-wrap; overflow-wrap:anywhere; }
+#id_machines { max-height:230px; overflow:auto; }

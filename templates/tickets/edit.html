@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}<h2>Editar {{ ticket.code }}</h2>
+<p>A edição fica registrada no histórico.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Salvar alterações</button></form>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bar"><h2>{{ title }}</h2><a href="{% url 'ticket_create' %}?area={{ area }}">+ Novo ticket</a></div>
+<form method="get" class="filters">
+    <input name="q" value="{{ query }}" placeholder="ID, descrição ou máquina" aria-label="Pesquisar">
+    <select name="status" aria-label="Status"><option value="">Todos os status</option>
+    {% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <select name="urgency" aria-label="Urgência"><option value="">Todas as urgências</option>
+    {% for value,label in urgencies %}<option value="{{ value }}" {% if selected_urgency == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <select name="category" aria-label="Categoria"><option value="">Todas as categorias</option>
+    {% for value,label in categories %}<option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <button>Filtrar</button>
+</form>
+<div class="scroll"><table><thead><tr><th>Ticket</th><th>Categoria</th><th>Solicitante</th><th>Máquinas</th><th>Urgência</th><th>Status</th><th>Responsável</th></tr></thead>
+<tbody>{% for ticket in page %}<tr>
+<td><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.code }}</a><br>{{ ticket.description|truncatechars:90 }}</td>
+<td>{{ ticket.get_category_display }}</td><td>{{ ticket.requester }}</td>
+<td>{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}</td>
+<td>{{ ticket.get_urgency_display }}</td><td>{{ ticket.get_status_display }}</td><td>{{ ticket.responsible|default:'Não atribuído' }}</td>
+</tr>{% empty %}<tr><td colspan="7">Nenhum ticket encontrado.</td></tr>{% endfor %}</tbody></table></div>
+<p>Página {{ page.number }} de {{ page.paginator.num_pages }}</p>
+{% if page.has_previous %}<a href="?q={{ query|urlencode }}&status={{ selected_status }}&urgency={{ selected_urgency }}&category={{ selected_category }}&page={{ page.previous_page_number }}">Anterior</a>{% endif %}
+{% if page.has_next %}<a href="?q={{ query|urlencode }}&status={{ selected_status }}&urgency={{ selected_urgency }}&category={{ selected_category }}&page={{ page.next_page_number }}">Próxima</a>{% endif %}
+{% endblock %}

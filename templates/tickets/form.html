@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}<h2>Novo ticket</h2>
+<p>O solicitante será identificado pela conta conectada. Em “Várias”, marque pelo menos duas máquinas.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Abrir ticket</button></form>
+{% endblock %}
