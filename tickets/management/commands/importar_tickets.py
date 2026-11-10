@@ -5,7 +5,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError, transaction
 
-from tickets.import_spreadsheet import read_plan
+from tickets.import_spreadsheet import read_plan, normalized
 from tickets.models import SpreadsheetImport, Ticket
 
 
@@ -50,6 +50,7 @@ class Command(BaseCommand):
                 for record in records:
                     ticket = Ticket.objects.create(
                         requester_id=record["requester_id"], description=record["description"],
+                        all_machines=normalized(record["original_equipment"]) == "todas",
                         status=record["status"], urgency=record["urgency"], category=Ticket.Category.SUPPORT)
                     # auto_now_add usaria hoje; preservamos a abertura original explicitamente.
                     Ticket.objects.filter(pk=ticket.pk).update(created_at=record["created_at"])

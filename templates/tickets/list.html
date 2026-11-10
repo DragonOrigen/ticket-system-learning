@@ -11,13 +11,13 @@
     {% for value,label in categories %}<option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
     <button>Filtrar</button>
 </form>
-<div class="scroll"><table><thead><tr><th>Ticket</th><th>Categoria</th><th>Solicitante</th><th>Máquinas</th><th>Urgência</th><th>Status</th><th>Responsável</th></tr></thead>
+<div class="scroll"><table class="ticket-table"><thead><tr><th>Ticket</th><th class="description-column">Descrição</th><th>Categoria</th><th>Solicitante</th><th>Máquinas</th><th>Urgência</th><th>Status</th><th>Responsável</th></tr></thead>
 <tbody>{% for ticket in page %}<tr>
-<td><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.code }}</a><br>{{ ticket.description|truncatechars:90 }}</td>
-<td>{{ ticket.get_category_display }}</td><td>{{ ticket.requester }}</td>
-<td>{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}</td>
-<td>{{ ticket.get_urgency_display }}</td><td>{{ ticket.get_status_display }}</td><td>{{ ticket.responsible|default:'Não atribuído' }}</td>
-</tr>{% empty %}<tr><td colspan="7">Nenhum ticket encontrado.</td></tr>{% endfor %}</tbody></table></div>
+<td><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.code }}</a></td><td class="description-cell">{{ ticket.description }}</td>
+<td>{{ ticket.get_category_display }}</td><td>{{ ticket.requester.get_full_name|default:ticket.requester.username }}</td>
+<td>{% if ticket.all_machines %}Todas{% elif ticket.machines.count > 1 %}Várias{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% empty %}Sem equipamento{% endfor %}{% endif %}</td>
+<td>{{ ticket.get_urgency_display }}</td><td>{{ ticket.get_status_display }}</td><td>{% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="8">Nenhum ticket encontrado.</td></tr>{% endfor %}</tbody></table></div>
 <p>Página {{ page.number }} de {{ page.paginator.num_pages }}</p>
 {% if page.has_previous %}<a href="?q={{ query|urlencode }}&status={{ selected_status }}&urgency={{ selected_urgency }}&category={{ selected_category }}&page={{ page.previous_page_number }}">Anterior</a>{% endif %}
 {% if page.has_next %}<a href="?q={{ query|urlencode }}&status={{ selected_status }}&urgency={{ selected_urgency }}&category={{ selected_category }}&page={{ page.next_page_number }}">Próxima</a>{% endif %}

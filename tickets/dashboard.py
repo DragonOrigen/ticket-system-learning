@@ -14,6 +14,16 @@ def build_dashboard(tickets, technician):
     result = {"total": len(records), "opened": len(opened),
               "closed": len(records) - len(opened),
               "waiting": sum(t.status == "aguardando" for t in opened)}
+    # Mantém três colunas, sem esconder estados intermediários.
+    groups = [
+        ("Novo", ("novo",)),
+        ("Em andamento", ("andamento", "aguardando")),
+        ("Resolvido", CLOSED_STATUSES),
+    ]
+    result["kanban_columns"] = [
+        {"title": title, "tickets": [ticket for ticket in records if ticket.status in statuses]}
+        for title, statuses in groups
+    ]
     if not technician:
         return result
     now = timezone.now()

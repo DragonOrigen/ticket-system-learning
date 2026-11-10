@@ -1,8 +1,48 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <h2>Dashboard</h2><p>{% if technician %}Visão técnica: todos os chamados.{% else %}Resumo dos seus chamados.{% endif %}</p>
+<nav class="dashboard-filters" aria-label="Filtrar dashboard por área">
+    {% for value, label in dashboard_filters %}
+    <a href="{% url 'dashboard' %}?area={{ value }}"{% if selected_area == value %} aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+</nav>
 <section class="cards"><div class="card"><b>{{ total }}</b>Total</div><div class="card"><b>{{ opened }}</b>Em aberto</div><div class="card"><b>{{ waiting }}</b>Aguardando resposta</div><div class="card"><b>{{ closed }}</b>Concluídos</div></section>
 <div class="actions"><a href="{% url 'support_list' %}">Consultar suporte</a><a href="{% url 'task_list' %}">Consultar tarefas</a><a href="{% url 'ticket_create' %}">Abrir chamado</a></div>
+<section class="kanban-section" aria-labelledby="kanban-title">
+    <h3 id="kanban-title">Quadro de tickets</h3>
+    <p class="muted">Clique no ticket para abrir. Passe o mouse ou abra Informações para ver os detalhes.
+        Aguardando resposta fica em Em andamento; Fechado fica em Resolvido.</p>
+    <div class="kanban-board">
+        {% for column in kanban_columns %}
+        <section class="kanban-column" aria-label="{{ column.title }}">
+            <h4>{{ column.title }} <span class="badge">{{ column.tickets|length }}</span></h4>
+            {% for ticket in column.tickets %}
+            <article class="kanban-ticket">
+                <a class="kanban-ticket-link" href="{% url 'ticket_detail' ticket.pk %}">
+                    <strong>{{ ticket.code }}</strong>
+                    <span>{{ ticket.description|truncatechars:140 }}</span>
+                </a>
+                <p class="kanban-badges"><span class="badge">{{ ticket.get_urgency_display }}</span>
+                    <span>{{ ticket.get_status_display }}</span></p>
+                <details class="kanban-info">
+                    <summary>Informações</summary>
+                    <dl>
+                        <dt>Solicitante</dt><dd>{{ ticket.requester.get_full_name|default:ticket.requester.username }}</dd>
+                        <dt>Responsável</dt><dd>{% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</dd>
+                        <dt>Categoria</dt><dd>{{ ticket.get_category_display }}</dd>
+                        <dt>Máquinas</dt><dd>{% if ticket.all_machines %}Todas{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}{% endif %}</dd>
+                        <dt>Abertura</dt><dd>{{ ticket.created_at|date:'d/m/Y H:i' }}</dd>
+                        <dt>Última atualização</dt><dd>{{ ticket.updated_at|date:'d/m/Y H:i' }}</dd>
+                    </dl>
+                </details>
+            </article>
+            {% empty %}<p class="muted">Nenhum ticket nesta coluna.</p>{% endfor %}
+        </section>
+        {% endfor %}
+    </div>
+</section>
+<script src="{% static 'kanban.js' %}" defer></script>
 {% if technician %}
 <section class="panel"><h3>O que atender primeiro</h3><p>Até 10 chamados abertos: urgência primeiro; na mesma urgência, os sem responsável; depois os mais antigos.</p>
 {% for ticket in priority %}<p><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.code }}</a> — {{ ticket.description|truncatechars:90 }} — {{ ticket.get_urgency_display }} — {{ ticket.responsible|default:'Sem responsável' }}</p>{% empty %}<p>Nenhum chamado pendente.</p>{% endfor %}</section>

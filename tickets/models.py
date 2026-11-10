@@ -43,6 +43,7 @@ class Ticket(models.Model):
     responsible = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="assignments", null=True, blank=True)
     urgency = models.CharField("urgência", max_length=10, choices=Urgency.choices, default=Urgency.MEDIUM)
     status = models.CharField("status", max_length=12, choices=Status.choices, default=Status.NEW)
+    all_machines = models.BooleanField(default=False)
     machines = models.ManyToManyField(Machine, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

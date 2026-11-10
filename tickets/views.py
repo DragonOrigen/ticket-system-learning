@@ -51,6 +51,7 @@ def ticket_create(request):
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
             ticket = form.save(commit=False)
+            ticket.all_machines = form.cleaned_data["mode"] == "todas"
             ticket.requester = request.user
             ticket.save()
             form.save_m2m()
@@ -111,7 +112,17 @@ def ticket_detail(request, pk):
 @login_required
 def dashboard(request):
     technician = is_technician(request.user)
-    context = build_dashboard(visible_tickets(request.user), technician)
+    area = request.GET.get("area", "all")
+    if area not in ("all", "support", "tasks"):
+        area = "all"
+    tickets = visible_tickets(request.user)
+    if area == "support":
+        tickets = tickets.filter(category__in=SUPPORT_CATEGORIES)
+    elif area == "tasks":
+        tickets = tickets.exclude(category__in=SUPPORT_CATEGORIES)
+    context = build_dashboard(tickets, technician)
+    context["selected_area"] = area
+    context["dashboard_filters"] = [("all", "Todos"), ("support", "Suporte"), ("tasks", "Tarefas")]
     context["technician"] = technician
     return render(request, "tickets/dashboard.html", context)
 
@@ -125,15 +136,17 @@ def help_page(request):
 def ticket_edit(request, pk):
     ticket = get_object_or_404(visible_tickets(request.user), pk=pk)
     count = ticket.machines.count()
-    initial = {"version": ticket.version, "mode": "nenhuma" if not count else ("uma" if count == 1 else "varias")}
-    previous = {key: getattr(ticket, key) for key in ("category", "description", "urgency")}
+    initial = {"version": ticket.version, "mode": "todas" if ticket.all_machines else ("nenhuma" if not count else ("uma" if count == 1 else "varias"))}
+    previous = {key: getattr(ticket, key) for key in ("category", "description", "urgency", "all_machines")}
     previous_machines = set(ticket.machines.values_list("pk", flat=True))
     form = EditTicketForm(request.POST or None, instance=ticket, initial=initial)
     if request.method == "POST" and form.is_valid():
         data = form.cleaned_data
+        data["all_machines"] = data["mode"] == "todas"
         with transaction.atomic():
             changed = Ticket.objects.filter(pk=pk, version=data["version"]).update(
                 category=data["category"], description=data["description"], urgency=data["urgency"],
+                all_machines=data["all_machines"],
                 updated_at=timezone.now(), version=F("version") + 1)
             if changed:
                 changes = [f"{key}: {previous[key]} → {data[key]}" for key in previous if previous[key] != data[key]]

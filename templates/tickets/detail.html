@@ -2,12 +2,12 @@
 {% block content %}
 <h2>{{ ticket.code }} — {{ ticket.get_status_display }}</h2>
 <p><a href="{% url 'ticket_edit' ticket.pk %}">Editar conteúdo e máquinas</a></p>
-<p>Solicitante: {{ ticket.requester }} · Responsável: {{ ticket.responsible|default:'Não atribuído' }}</p>
+<p>Solicitante: {{ ticket.requester.get_full_name|default:ticket.requester.username }} · Responsável: {% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</p>
 <p>Abertura: {{ ticket.created_at|date:'d/m/Y H:i' }} · Atualização: {{ ticket.updated_at|date:'d/m/Y H:i' }}</p>
 {% if ticket.completed_at %}<p>Conclusão: {{ ticket.completed_at|date:'d/m/Y H:i' }}</p>{% endif %}
 <p>Categoria: {{ ticket.get_category_display }}</p>
 <p>Urgência: {{ ticket.get_urgency_display }}</p>
-<p>Máquinas: {% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}</p>
+<p>Máquinas: {% if ticket.all_machines %}Todas{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}{% endif %}</p>
 <div class="panel message">{{ ticket.description }}</div>
 {% if technician %}<section class="panel"><h3>Atendimento</h3>
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="attendance">{{ attendance.as_p }}<button>Salvar atendimento</button></form></section>{% endif %}
