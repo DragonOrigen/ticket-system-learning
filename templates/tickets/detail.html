@@ -6,6 +6,7 @@
 <p>Abertura: {{ ticket.created_at|date:'d/m/Y H:i' }} · Atualização: {{ ticket.updated_at|date:'d/m/Y H:i' }}</p>
 {% if ticket.completed_at %}<p>Conclusão: {{ ticket.completed_at|date:'d/m/Y H:i' }}</p>{% endif %}
 <p>Categoria: {{ ticket.get_category_display }}</p>
+<p>Subcategoria: {{ ticket.get_subcategory_display|default:"Sem subcategoria" }}</p>
 <p>Urgência: {{ ticket.get_urgency_display }}</p>
 <p>Máquinas: {% if ticket.all_machines %}Todas{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}{% endif %}</p>
 <div class="panel message">{{ ticket.description }}</div>

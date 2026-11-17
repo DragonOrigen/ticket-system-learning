@@ -23,6 +23,20 @@ class Ticket(models.Model):
         MAINTENANCE = "manutencao", "Manutenção preventiva"
         OTHER = "outros", "Outros serviços"
 
+    class Subcategory(models.TextChoices):
+        PRACTICAL_CLASS = "aula_pratica", "Aula prática"
+        HUB = "hub", "Hub"
+        PERIODIC_MAINTENANCE = "manutencao_periodica", "Manutenção periódica"
+        HEADPHONES = "fones", "Fones"
+        KEYBOARDS = "teclados", "Teclados"
+        EQUIPMENT = "equipamentos", "Equipamentos"
+        PC_SUPPORT = "suporte_pc", "Suporte PC"
+        MOV_EDU = "ticket_mov_edu", "Ticket Mov Edu"
+        BRIGHT_MINDS = "mentes_brilhantes", "Mentes brilhantes"
+        ROOM_ORGANIZATION = "organizacao_sala", "Organização da sala"
+
+    subcategory = models.CharField("subcategoria", max_length=30,
+                                   choices=Subcategory.choices, blank=True, default="")
     category = models.CharField("categoria", max_length=20, choices=Category.choices, default=Category.SUPPORT)
 
     class Status(models.TextChoices):

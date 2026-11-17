@@ -31,6 +31,7 @@
                         <dt>Solicitante</dt><dd>{{ ticket.requester.get_full_name|default:ticket.requester.username }}</dd>
                         <dt>Responsável</dt><dd>{% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</dd>
                         <dt>Categoria</dt><dd>{{ ticket.get_category_display }}</dd>
+                        <dt>Subcategoria</dt><dd>{{ ticket.get_subcategory_display|default:"Sem subcategoria" }}</dd>
                         <dt>Máquinas</dt><dd>{% if ticket.all_machines %}Todas{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}{% endif %}</dd>
                         <dt>Abertura</dt><dd>{{ ticket.created_at|date:'d/m/Y H:i' }}</dd>
                         <dt>Última atualização</dt><dd>{{ ticket.updated_at|date:'d/m/Y H:i' }}</dd>

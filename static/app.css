@@ -324,8 +324,8 @@ a { color: var(--foco); }
 .ticket-table th, .ticket-table td { white-space: nowrap; overflow-wrap: normal; padding: 10px 12px; }
 .ticket-table .description-column { width: 100%; min-width: 320px; }
 .ticket-table .description-cell { white-space: normal; min-width: 320px; overflow-wrap: anywhere; }
-.filters { grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(130px, 1fr)) auto; }
-@media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
+.filters { grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(130px, 1fr)) auto; }
+@media (max-width: 1200px) { .filters { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 550px) { .filters { grid-template-columns: 1fr; } }
 
 /* Kanban: três colunas no computador; empilhadas em telas menores. */

@@ -30,6 +30,11 @@ def ticket_list(request, area=None):
     status = request.GET.get("status", "")
     urgency = request.GET.get("urgency", "")
     category = request.GET.get("category", "")
+    subcategory = request.GET.get("subcategory", "")
+    if subcategory == "none":
+        tickets = tickets.filter(subcategory="")
+    elif subcategory:
+        tickets = tickets.filter(subcategory=subcategory)
     if category:
         tickets = tickets.filter(category=category)
     if status:
@@ -42,6 +47,7 @@ def ticket_list(request, area=None):
         "area": area, "title": {"support": "Suporte de software / hardware", "tasks": "Tarefas e serviços"}.get(area, "Todos os chamados"),
         "selected_status": status, "selected_urgency": urgency,
         "categories": Ticket.Category.choices, "selected_category": category,
+        "subcategories": Ticket.Subcategory.choices, "selected_subcategory": subcategory,
     })
 
 
@@ -137,7 +143,7 @@ def ticket_edit(request, pk):
     ticket = get_object_or_404(visible_tickets(request.user), pk=pk)
     count = ticket.machines.count()
     initial = {"version": ticket.version, "mode": "todas" if ticket.all_machines else ("nenhuma" if not count else ("uma" if count == 1 else "varias"))}
-    previous = {key: getattr(ticket, key) for key in ("category", "description", "urgency", "all_machines")}
+    previous = {key: getattr(ticket, key) for key in ("category", "subcategory", "description", "urgency", "all_machines")}
     previous_machines = set(ticket.machines.values_list("pk", flat=True))
     form = EditTicketForm(request.POST or None, instance=ticket, initial=initial)
     if request.method == "POST" and form.is_valid():
@@ -145,7 +151,7 @@ def ticket_edit(request, pk):
         data["all_machines"] = data["mode"] == "todas"
         with transaction.atomic():
             changed = Ticket.objects.filter(pk=pk, version=data["version"]).update(
-                category=data["category"], description=data["description"], urgency=data["urgency"],
+                category=data["category"], subcategory=data["subcategory"], description=data["description"], urgency=data["urgency"],
                 all_machines=data["all_machines"],
                 updated_at=timezone.now(), version=F("version") + 1)
             if changed:

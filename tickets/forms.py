@@ -13,7 +13,7 @@ class TicketForm(forms.ModelForm):
 
     class Meta:
         model = Ticket
-        fields = ["category", "description", "urgency", "mode", "machines"]
+        fields = ["category", "subcategory", "description", "urgency", "mode", "machines"]
         widgets = {"description": forms.Textarea(attrs={"rows": 5})}
 
     def clean(self):
@@ -56,7 +56,7 @@ class EditTicketForm(TicketForm):
     version = forms.IntegerField(widget=forms.HiddenInput)
 
     class Meta(TicketForm.Meta):
-        fields = ["category", "description", "urgency", "mode", "machines"]
+        fields = ["category", "subcategory", "description", "urgency", "mode", "machines"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
