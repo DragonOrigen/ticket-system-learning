@@ -11,6 +11,9 @@ from .dashboard import SUPPORT_CATEGORIES, build_dashboard
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest
+from .notifications import notify_ticket
+from .sorting import sort_tickets, SORT_CHOICES
+from .forms import AttachmentForm
 
 
 @login_required
@@ -41,7 +44,9 @@ def ticket_list(request, area=None):
         tickets = tickets.filter(status=status)
     if urgency:
         tickets = tickets.filter(urgency=urgency)
+    tickets, selected_sort = sort_tickets(tickets, request.GET.get("sort", "newest"))
     return render(request, "tickets/list.html", {
+        "sort_choices": SORT_CHOICES, "selected_sort": selected_sort,
         "page": Paginator(tickets, 25).get_page(request.GET.get("page")), "query": query,
         "statuses": Ticket.Status.choices, "urgencies": Ticket.Urgency.choices,
         "area": area, "title": {"support": "Suporte de software / hardware", "tasks": "Tarefas e serviços"}.get(area, "Todos os chamados"),
@@ -62,6 +67,7 @@ def ticket_create(request):
             ticket.save()
             form.save_m2m()
             Event.objects.create(ticket=ticket, author=request.user, text="Ticket aberto.")
+            notify_ticket(ticket, request.user, "Novo ticket aberto.")
         return redirect("ticket_detail", pk=ticket.pk)
     return render(request, "tickets/form.html", {"form": form})
 
@@ -73,19 +79,28 @@ def ticket_detail(request, pk):
     technician = is_technician(request.user)
     attendance = AttendanceForm(instance=ticket, initial={"version": ticket.version})
     note = MessageForm()
+    attachment_form = AttachmentForm()
     if request.method == "POST":
         action = request.POST.get("action")
-        if action == "message":
+        if action == "attachment":
+            from .extras import save_attachment
+            attachment_form = AttachmentForm(request.POST, request.FILES)
+            if attachment_form.is_valid():
+                if save_attachment(ticket, request.user, attachment_form.cleaned_data["file"]):
+                    return redirect("ticket_detail", pk=pk)
+                attachment_form.add_error(None, "Limite de 10 anexos por ticket atingido.")
+        elif action == "message":
             note = MessageForm(request.POST)
             if note.is_valid():
                 with transaction.atomic():
                     Message.objects.create(ticket=ticket, author=request.user, text=note.cleaned_data["text"])
+                    notify_ticket(ticket, request.user, "Nova resposta no ticket.")
                     Ticket.objects.filter(pk=pk).update(updated_at=timezone.now(), version=F("version") + 1)
                 return redirect("ticket_detail", pk=pk)
         elif action == "attendance":
             if not technician:
                 raise PermissionDenied
-            previous = {field: getattr(ticket, field) for field in ("status", "urgency", "responsible_id")}
+            previous = {field: getattr(ticket, field) for field in ("status", "urgency", "responsible_id", "due_date")}
             attendance = AttendanceForm(request.POST, instance=ticket)
             if attendance.is_valid():
                 data = attendance.cleaned_data
@@ -95,9 +110,10 @@ def ticket_detail(request, pk):
                     # Comparação e atualização em uma instrução: impede sobrescrever versão antiga.
                     changed = Ticket.objects.filter(pk=pk, version=data["version"]).update(
                         status=data["status"], urgency=data["urgency"], responsible=data["responsible"],
-                        completed_at=completed, updated_at=now, version=F("version") + 1,
+                        completed_at=completed, due_date=data["due_date"], updated_at=now, version=F("version") + 1,
                     )
                     if changed:
+                        notify_ticket(ticket, request.user, "Atendimento, responsável ou prazo atualizado.")
                         details = []
                         for field in previous:
                             value = getattr(ticket, field)
@@ -112,7 +128,8 @@ def ticket_detail(request, pk):
         else:
             return HttpResponseBadRequest("Ação inválida.")
     return render(request, "tickets/detail.html", {"ticket": ticket, "technician": technician,
-                                                    "attendance": attendance, "note": note})
+                                                    "attendance": attendance, "note": note, "attachment_form": attachment_form,
+                                                    "attachments": ticket.attachments.defer("data").select_related("author")})
 
 
 @login_required
@@ -162,6 +179,7 @@ def ticket_edit(request, pk):
                 ticket.machines.set(data["machines"])
                 Event.objects.create(ticket=ticket, author=request.user,
                     text="Edição: " + ("; ".join(changes) or "sem alteração de conteúdo"))
+                notify_ticket(ticket, request.user, "Conteúdo do ticket atualizado.")
         if changed:
             return redirect("ticket_detail", pk=pk)
         form.add_error(None, "O chamado mudou. Recarregue a página antes de salvar.")

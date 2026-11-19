@@ -39,7 +39,8 @@ class AttendanceForm(forms.ModelForm):
 
     class Meta:
         model = Ticket
-        fields = ["status", "urgency", "responsible"]
+        fields = ["status", "urgency", "responsible", "due_date"]
+        widgets = {"due_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")}
         labels = {"responsible": "Responsável"}
 
     def __init__(self, *args, **kwargs):
@@ -62,3 +63,22 @@ class EditTicketForm(TicketForm):
         super().__init__(*args, **kwargs)
         # Equipamentos antigos continuam editáveis mesmo quando desativados no catálogo.
         self.fields["machines"].queryset = Machine.objects.all()
+
+
+class AttachmentForm(forms.Form):
+    file = forms.FileField(label="Anexo (PNG, JPG ou PDF, até 5 MB)")
+
+    def clean_file(self):
+        from pathlib import Path
+        file = self.cleaned_data["file"]
+        if file.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("O limite por arquivo é 5 MB.")
+        suffix = Path(file.name).suffix.lower()
+        header = file.read(8)
+        file.seek(0)
+        valid = ((suffix == ".png" and header.startswith(b"\x89PNG\r\n\x1a\n")) or
+                 (suffix in (".jpg", ".jpeg") and header.startswith(b"\xff\xd8\xff")) or
+                 (suffix == ".pdf" and header.startswith(b"%PDF-")))
+        if not valid:
+            raise forms.ValidationError("Envie um arquivo PNG, JPG ou PDF válido.")
+        return file

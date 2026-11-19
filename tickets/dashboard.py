@@ -30,6 +30,8 @@ def build_dashboard(tickets, technician):
     alerts = []
     for ticket in opened:
         reasons = []
+        if ticket.overdue:
+            reasons.append("Prazo de atendimento vencido")
         if (now - ticket.created_at).days >= OLD_DAYS:
             reasons.append(f"Aberto há pelo menos {OLD_DAYS} dias")
         if (now - ticket.updated_at).days >= STALE_DAYS:

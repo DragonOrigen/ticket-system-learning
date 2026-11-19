@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% block content %}<h2>Lixeira</h2><p>Somente administradores podem restaurar ou excluir definitivamente. Não há limpeza automática.</p>
+{% for ticket in page %}<article class="panel"><h3>{{ ticket.code }}</h3><p>{{ ticket.description|truncatechars:200 }}</p><p>Removido em {{ ticket.deleted_at|date:'d/m/Y H:i' }} por {{ ticket.deleted_by.get_full_name|default:ticket.deleted_by.username }}</p><div class="actions"><form method="post" action="{% url 'ticket_restore' ticket.pk %}">{% csrf_token %}<button>Restaurar</button></form><a class="btn danger-outline" href="{% url 'ticket_purge' ticket.pk %}">Excluir definitivamente</a></div></article>{% empty %}<p>A lixeira está vazia.</p>{% endfor %}
+{% include 'tickets/pagination.html' %}{% endblock %}

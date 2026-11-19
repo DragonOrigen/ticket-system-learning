@@ -45,7 +45,7 @@ class SubcategoryTests(TestCase):
         Ticket.objects.create(requester=self.user, description='Teclado', subcategory='teclados')
         response = self.client.get('/suporte/', {'subcategory': 'fones', 'status': 'novo'})
         self.assertEqual(response.context['page'].paginator.count, 26)
-        self.assertContains(response, 'subcategory=fones&amp;page=2')
+        self.assertContains(response, 'subcategory=fones&amp;sort=newest&amp;page=2')
         self.assertNotContains(response, 'Privado')
         self.assertNotContains(response, '>Tarefa<')
         self.assertEqual(len(self.client.get('/suporte/', {'subcategory': 'fones', 'page': 2}).context['page'].object_list), 1)

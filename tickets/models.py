@@ -63,6 +63,17 @@ class Ticket(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
+    due_date = models.DateField("prazo de atendimento", null=True, blank=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="trashed_tickets")
+
+    @property
+    def overdue(self):
+        from django.utils import timezone
+        return bool(self.due_date and self.due_date < timezone.localdate()
+                    and self.status not in ("resolvido", "fechado") and not self.deleted_at)
+
 
     class Meta:
         ordering = ["-created_at"]
@@ -108,3 +119,24 @@ class SpreadsheetImport(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["source", "original_id"], name="unique_spreadsheet_ticket")]
+
+
+class Attachment(models.Model):
+    """Arquivos pequenos no banco: backup único e sem disco efêmero no deploy."""
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="attachments")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    name = models.CharField(max_length=200)
+    data = models.BinaryField()
+    size = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]

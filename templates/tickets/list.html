@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="bar"><h2>{{ title }}</h2><a href="{% url 'ticket_create' %}?area={{ area }}">+ Novo ticket</a></div>
+<div class="bar"><h2>{{ title }}</h2><a class="btn" href="{% url 'ticket_create' %}?area={{ area }}">+ Novo ticket</a></div>
 <form method="get" class="filters">
     <input name="q" value="{{ query }}" placeholder="ID, descrição ou máquina" aria-label="Pesquisar">
     <select name="status" aria-label="Status"><option value="">Todos os status</option>
@@ -13,16 +13,17 @@
     <option value="">Todas as subcategorias</option>
     <option value="none" {% if selected_subcategory == 'none' %}selected{% endif %}>Sem subcategoria</option>
     {% for value,label in subcategories %}<option value="{{ value }}" {% if selected_subcategory == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
-    <button>Filtrar</button>
+    <select name="sort" aria-label="Ordenar por">{% for value,label in sort_choices %}<option value="{{ value }}" {% if selected_sort == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <button>Filtrar / ordenar</button>
 </form>
-<div class="scroll"><table class="ticket-table"><thead><tr><th>Ticket</th><th class="description-column">Descrição</th><th>Categoria</th><th>Subcategoria</th><th>Solicitante</th><th>Máquinas</th><th>Urgência</th><th>Status</th><th>Responsável</th></tr></thead>
-<tbody>{% for ticket in page %}<tr>
+<div class="scroll"><table class="ticket-table"><thead><tr><th>Ticket</th><th class="description-column">Descrição</th><th>Categoria</th><th>Subcategoria</th><th>Solicitante</th><th>Máquinas</th><th>Urgência</th><th>Status</th><th>Prazo</th><th>Responsável</th></tr></thead>
+<tbody>{% for ticket in page %}<tr class="ticket-row status-{{ ticket.status }}">
 <td><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.code }}</a></td><td class="description-cell">{{ ticket.description }}</td>
 <td>{{ ticket.get_category_display }}</td><td>{{ ticket.get_subcategory_display|default:"Sem subcategoria" }}</td><td>{{ ticket.requester.get_full_name|default:ticket.requester.username }}</td>
 <td>{% if ticket.all_machines %}Todas{% elif ticket.machines.count > 1 %}Várias{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% empty %}Sem equipamento{% endfor %}{% endif %}</td>
-<td>{{ ticket.get_urgency_display }}</td><td>{{ ticket.get_status_display }}</td><td>{% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</td>
-</tr>{% empty %}<tr><td colspan="9">Nenhum ticket encontrado.</td></tr>{% endfor %}</tbody></table></div>
+<td><span class="badge urgency-{{ ticket.urgency }}">{{ ticket.get_urgency_display }}</span></td><td><span class="badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td><td>{{ ticket.due_date|date:"d/m/Y"|default:"Sem prazo" }}{% if ticket.overdue %}<br><span class="badge overdue">Em atraso</span>{% endif %}</td><td>{% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="10">Nenhum ticket encontrado.</td></tr>{% endfor %}</tbody></table></div>
 <p>Página {{ page.number }} de {{ page.paginator.num_pages }}</p>
-{% if page.has_previous %}<a href="?q={{ query|urlencode }}&amp;status={{ selected_status }}&amp;urgency={{ selected_urgency }}&amp;category={{ selected_category }}&amp;subcategory={{ selected_subcategory|urlencode }}&amp;page={{ page.previous_page_number }}">Anterior</a>{% endif %}
-{% if page.has_next %}<a href="?q={{ query|urlencode }}&amp;status={{ selected_status }}&amp;urgency={{ selected_urgency }}&amp;category={{ selected_category }}&amp;subcategory={{ selected_subcategory|urlencode }}&amp;page={{ page.next_page_number }}">Próxima</a>{% endif %}
+{% if page.has_previous %}<a class="btn secondary" href="?q={{ query|urlencode }}&amp;status={{ selected_status }}&amp;urgency={{ selected_urgency }}&amp;category={{ selected_category }}&amp;subcategory={{ selected_subcategory|urlencode }}&amp;sort={{ selected_sort }}&amp;page={{ page.previous_page_number }}">Anterior</a>{% endif %}
+{% if page.has_next %}<a class="btn secondary" href="?q={{ query|urlencode }}&amp;status={{ selected_status }}&amp;urgency={{ selected_urgency }}&amp;category={{ selected_category }}&amp;subcategory={{ selected_subcategory|urlencode }}&amp;sort={{ selected_sort }}&amp;page={{ page.next_page_number }}">Próxima</a>{% endif %}
 {% endblock %}

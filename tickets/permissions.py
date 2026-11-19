@@ -14,5 +14,5 @@ def technicians():
 
 def visible_tickets(user):
     from .models import Ticket
-    tickets = Ticket.objects.select_related("requester", "responsible").prefetch_related("machines")
+    tickets = Ticket.objects.filter(deleted_at__isnull=True).select_related("requester", "responsible").prefetch_related("machines")
     return tickets if is_technician(user) else tickets.filter(requester=user)

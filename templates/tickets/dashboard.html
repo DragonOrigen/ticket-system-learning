@@ -8,7 +8,7 @@
     {% endfor %}
 </nav>
 <section class="cards"><div class="card"><b>{{ total }}</b>Total</div><div class="card"><b>{{ opened }}</b>Em aberto</div><div class="card"><b>{{ waiting }}</b>Aguardando resposta</div><div class="card"><b>{{ closed }}</b>Concluídos</div></section>
-<div class="actions"><a href="{% url 'support_list' %}">Consultar suporte</a><a href="{% url 'task_list' %}">Consultar tarefas</a><a href="{% url 'ticket_create' %}">Abrir chamado</a></div>
+<div class="actions"><a class="btn secondary" href="{% url 'support_list' %}">Consultar suporte</a><a class="btn secondary" href="{% url 'task_list' %}">Consultar tarefas</a><a class="btn secondary" href="{% url 'ticket_create' %}">Abrir chamado</a></div>
 <section class="kanban-section" aria-labelledby="kanban-title">
     <h3 id="kanban-title">Quadro de tickets</h3>
     <p class="muted">Clique no ticket para abrir. Passe o mouse ou abra Informações para ver os detalhes.
@@ -18,18 +18,19 @@
         <section class="kanban-column" aria-label="{{ column.title }}">
             <h4>{{ column.title }} <span class="badge">{{ column.tickets|length }}</span></h4>
             {% for ticket in column.tickets %}
-            <article class="kanban-ticket">
+            <article class="kanban-ticket status-{{ ticket.status }}">
                 <a class="kanban-ticket-link" href="{% url 'ticket_detail' ticket.pk %}">
                     <strong>{{ ticket.code }}</strong>
                     <span>{{ ticket.description|truncatechars:140 }}</span>
                 </a>
-                <p class="kanban-badges"><span class="badge">{{ ticket.get_urgency_display }}</span>
+                <p class="kanban-badges"><span class="badge urgency-{{ ticket.urgency }}">{{ ticket.get_urgency_display }}</span>
                     <span>{{ ticket.get_status_display }}</span></p>
                 <details class="kanban-info">
                     <summary>Informações</summary>
                     <dl>
                         <dt>Solicitante</dt><dd>{{ ticket.requester.get_full_name|default:ticket.requester.username }}</dd>
                         <dt>Responsável</dt><dd>{% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</dd>
+                        <dt>Prazo</dt><dd>{{ ticket.due_date|date:"d/m/Y"|default:"Não definido" }}{% if ticket.overdue %} · Em atraso{% endif %}</dd>
                         <dt>Categoria</dt><dd>{{ ticket.get_category_display }}</dd>
                         <dt>Subcategoria</dt><dd>{{ ticket.get_subcategory_display|default:"Sem subcategoria" }}</dd>
                         <dt>Máquinas</dt><dd>{% if ticket.all_machines %}Todas{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}{% endif %}</dd>

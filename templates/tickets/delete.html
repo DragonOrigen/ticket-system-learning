@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block content %}
+<section class="form-panel"><p class="eyebrow">Administração</p>
+<h2>{% if permanent %}Excluir definitivamente{% else %}Mover para a lixeira{% endif %} {{ ticket.code }}</h2>
+<div class="notice-danger">{% if permanent %}<strong>Esta exclusão é permanente.</strong><p>Mensagens, anexos e histórico serão removidos. Usuários e máquinas serão mantidos. A autoria permanece no log administrativo.</p>{% if ticket.spreadsheet_import %}<p>Uma nova importação da mesma linha poderá recriar o ticket.</p>{% endif %}{% else %}<strong>Você poderá restaurar este ticket.</strong><p>Ele ficará oculto das listas, do dashboard, das notificações e dos relatórios. Seus dados e anexos serão preservados na lixeira.</p>{% endif %}</div>
+<p class="message">{{ ticket.description }}</p><form method="post">{% csrf_token %}
+{% if error %}<p role="alert" class="errorlist">{{ error }}</p>{% endif %}
+<label for="confirm_code">Digite {{ ticket.code }} para confirmar</label><input id="confirm_code" name="confirm_code" required autocomplete="off">
+<div class="form-actions"><a class="btn secondary" href="{% if permanent %}{% url 'trash' %}{% else %}{% url 'ticket_detail' ticket.pk %}{% endif %}">Cancelar</a><button class="danger">{% if permanent %}Excluir definitivamente{% else %}Mover para a lixeira{% endif %}</button></div>
+</form></section>{% endblock %}

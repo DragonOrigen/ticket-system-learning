@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>{{ ticket.code }} — {{ ticket.get_status_display }}</h2>
-<p><a href="{% url 'ticket_edit' ticket.pk %}">Editar conteúdo e máquinas</a></p>
+<div class="actions"><a class="btn" href="{% url 'ticket_edit' ticket.pk %}">Editar ticket</a><a class="btn secondary" href="{% url 'ticket_list' %}">Voltar à lista</a>{% if user.is_superuser %}<a class="btn danger-outline" href="{% url 'ticket_delete' ticket.pk %}">Mover para a lixeira</a>{% endif %}</div>
 <p>Solicitante: {{ ticket.requester.get_full_name|default:ticket.requester.username }} · Responsável: {% if ticket.responsible %}{{ ticket.responsible.get_full_name|default:ticket.responsible.username }}{% else %}Não atribuído{% endif %}</p>
 <p>Abertura: {{ ticket.created_at|date:'d/m/Y H:i' }} · Atualização: {{ ticket.updated_at|date:'d/m/Y H:i' }}</p>
 {% if ticket.completed_at %}<p>Conclusão: {{ ticket.completed_at|date:'d/m/Y H:i' }}</p>{% endif %}
 <p>Categoria: {{ ticket.get_category_display }}</p>
 <p>Subcategoria: {{ ticket.get_subcategory_display|default:"Sem subcategoria" }}</p>
+<p>Prazo: {{ ticket.due_date|date:"d/m/Y"|default:"Não definido" }} {% if ticket.overdue %}<span class="badge overdue">Em atraso</span>{% endif %}</p>
 <p>Urgência: {{ ticket.get_urgency_display }}</p>
 <p>Máquinas: {% if ticket.all_machines %}Todas{% else %}{% for machine in ticket.machines.all %}{{ machine }}{% if not forloop.last %}; {% endif %}{% empty %}Sem equipamento{% endfor %}{% endif %}</p>
 <div class="panel message">{{ ticket.description }}</div>
@@ -24,6 +25,7 @@
     <p class="message">{{ ticket.spreadsheet_import.replies|default:'Sem respostas' }}</p>
 </section>
 {% endif %}
+<section class="panel"><h3>Anexos</h3><p>Até 10 anexos por ticket, de até 5 MB cada. PNG, JPG ou PDF. Acesso restrito a quem pode ver o ticket.</p>{% for attachment in attachments %}<p><a class="btn secondary" href="{% url 'attachment_download' attachment.pk %}">{{ attachment.name }}</a> · {{ attachment.size|filesizeformat }}</p>{% empty %}<p>Nenhum anexo.</p>{% endfor %}<form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="attachment">{{ attachment_form.as_p }}<button>Enviar anexo</button></form></section>
 <h3>Observações e respostas</h3>
 {% for message in ticket.messages.all %}<article class="panel"><b>{{ message.author }}</b> · {{ message.created_at|date:'d/m/Y H:i' }}<p class="message">{{ message.text }}</p></article>{% empty %}<p>Sem mensagens.</p>{% endfor %}
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="message">{{ note.as_p }}<button>Enviar mensagem</button></form>

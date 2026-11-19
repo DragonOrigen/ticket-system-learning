@@ -9,19 +9,22 @@
     <link rel="stylesheet" href="{% static 'app.css' %}">
 </head>
 <body><main>
-<header>
-    <h1>Central de atendimento</h1>
+<header class="app-header">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">T</span><div><p class="eyebrow">Central de atendimento</p><h1>Tickets e serviços</h1></div></div>
     <nav class="actions" aria-label="Navegação principal">
         <button id="themeToggle" type="button" class="secondary">Modo escuro</button>
         {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'support_list' %}">Suporte</a>
-            <a href="{% url 'task_list' %}">Tarefas</a>
-            <a href="{% url 'help' %}">Ajuda</a>
-            <a href="{% url 'password_change' %}">Trocar senha</a>
-            {% if user.is_staff %}<a href="{% url 'admin:index' %}">Administração</a>{% endif %}
-            <span>{{ user.first_name|default:user.username }}</span>
-            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Sair</button></form>
+            <a class="btn nav-button" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %} href="{% url 'dashboard' %}">Dashboard</a>
+            <a class="btn nav-button" {% if request.resolver_match.url_name == 'support_list' %}aria-current="page"{% endif %} href="{% url 'support_list' %}">Suporte</a>
+            <a class="btn nav-button" {% if request.resolver_match.url_name == 'task_list' %}aria-current="page"{% endif %} href="{% url 'task_list' %}">Tarefas</a>
+            <a class="btn nav-button" {% if request.resolver_match.url_name == 'help' %}aria-current="page"{% endif %} href="{% url 'help' %}">Ajuda</a>
+            <a class="btn nav-button" {% if request.resolver_match.url_name == 'password_change' %}aria-current="page"{% endif %} href="{% url 'password_change' %}">Trocar senha</a>
+            {% if user.is_staff %}<a class="btn secondary" href="{% url 'admin:index' %}">Administração</a>{% endif %}
+            <a class="btn nav-button" href="{% url 'notifications' %}">Notificações</a>
+            <a class="btn nav-button" href="{% url 'reports' %}">Relatórios</a>
+            {% if user.is_superuser %}<a class="btn secondary" href="{% url 'trash' %}">Lixeira</a>{% endif %}
+            <span class="user-chip">{{ user.first_name|default:user.username }}</span>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="secondary">Sair</button></form>
         {% endif %}
     </nav>
 </header>

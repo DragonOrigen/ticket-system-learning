@@ -1,6 +1,6 @@
 # Sistema de tickets — versão LOCAL / SQLite
 
-Usa SQLite, sem servidor de banco e sem configuração de PostgreSQL.
+Esta projeto é independente e utiliza SQLite, sem servidor de banco e sem configuração de PostgreSQL.
 Suporte, tarefas manuais, dashboard, ajuda, usuários e importação XLSX estão incluídos.
 Não há repetição semanal automática.
 

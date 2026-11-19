@@ -1,1 +1,6 @@
-SQLite: 32 testes aprovados. Banco e segredos excluídos do pacote.
+VALIDAÇÃO
+49 testes aprovados em SQLite e 54 em PostgreSQL 17.11.
+Migrações e modelos conferidos; collectstatic de produção executado com sucesso.
+Inclui controles de acesso, CSRF, lixeira/restauração/exclusão, anexos e limites,
+notificações, prazos, relatórios, ordenação e paginação.
+Não houve deploy na conta do usuário nem teste visual completo em navegador nesta atualização.
